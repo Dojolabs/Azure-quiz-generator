@@ -1,120 +1,116 @@
 # Azure AI Quiz Generator
 
-## Overview
+A beginner-friendly Next.js web app that generates a simple Azure AI practice quiz.
 
-The Azure AI Quiz Generator is a learning application that creates Microsoft Azure AI certification-style practice exams from study materials stored in Google Sheets or Excel spreadsheets.
+The app is intentionally small. It does not use a database, login system, backend API, or spreadsheet parser yet. The starter questions live in one JavaScript data file so the project is easy to understand.
 
-The goal is to help learners prepare for certifications such as AI-900 and AI-102 by generating randomized, high-quality multiple-choice questions, automatically scoring exams, and identifying areas that need further study.
+## How To Run
 
----
+1. Install dependencies:
 
-## Project Goals
+```bash
+npm install
+```
 
-* Read study materials from a spreadsheet.
-* Generate randomized certification-style quizzes.
-* Avoid repeating the same questions whenever possible.
-* Automatically score completed exams.
-* Provide explanations for correct answers.
-* Track weak topics and recommend areas for review.
-* Keep the application simple, maintainable, and easy for beginners to understand.
+2. Start the development server:
 
----
+```bash
+npm run dev
+```
+
+3. Open the local URL shown in the terminal, usually:
+
+```text
+http://localhost:3000
+```
 
 ## Project Structure
 
 ```text
 Azure Quiz Generator/
-
-├── CLAUDE.md          # AI project instructions
-├── README.md          # Project documentation
-
-├── data/              # Study guides (.xlsx or .csv)
-│
-├── exams/             # Generated quizzes
-│
-├── reports/           # Score reports and analytics
-│
-└── src/               # Application source code
+├── app/
+│   ├── globals.css
+│   ├── layout.js
+│   └── page.js
+├── components/
+│   └── QuizApp.jsx
+├── lib/
+│   └── studyGuides.js
+├── Data/
+│   └── Azure study guide 1.0.xlsx
+├── Agents.md
+├── Readme.md
+├── package.json
+└── .gitignore
 ```
 
----
+## File Guide
 
-## Current Version
+### `package.json`
 
-Version: 0.1 (Minimum Viable Product)
+Defines the Next.js project. It lists the app scripts:
 
-Current features:
+- `npm run dev` starts the development server.
+- `npm run build` creates a production build.
+- `npm run start` runs the production build.
 
-* Read a study guide spreadsheet.
-* Detect major topics.
-* Generate a randomized quiz.
-* Display questions one at a time.
-* Calculate the final score.
+### `.gitignore`
 
----
+Tells Git to ignore generated folders and local files, such as `node_modules/`, `.next/`, and `.env.local`.
 
-## Planned Features
+### `app/layout.js`
 
-### Phase 1
+The root layout for the Next.js app. It loads the global CSS file and wraps every page in the basic HTML structure.
 
-* Import Excel or CSV study guides.
-* Generate 10-question quizzes.
-* Show final score.
+### `app/page.js`
 
-### Phase 2
+The home page. It imports and displays the quiz application component.
 
-* Support 50-question certification exams.
-* Randomize answer choices.
-* Provide explanations for each question.
+### `app/globals.css`
 
-### Phase 3
+All visual styling for the app. It controls the page layout, buttons, quiz cards, answer choices, score metrics, and review screen.
 
-* Track learner performance.
-* Highlight weak topics.
-* Recommend study areas.
+### `components/QuizApp.jsx`
 
-### Phase 4
+The main interactive quiz component. It handles:
 
-* Adaptive quizzes based on previous performance.
-* Support multiple Microsoft certification study guides.
-* Dashboard with learning analytics.
+- Selecting a certification study guide.
+- Generating a randomized quiz.
+- Moving to the next or previous question.
+- Saving selected answers.
+- Calculating the score.
+- Showing explanations.
+- Showing weak-topic recommendations.
 
----
+### `lib/studyGuides.js`
 
-## Design Principles
+The quiz data source. It contains the starter Azure AI study guide, questions, answer choices, correct answers, explanations, and recommendations.
 
-* Keep the code simple.
-* Favor readability over cleverness.
-* Write clear comments.
-* Explain complex logic.
-* Minimize dependencies.
-* Build one feature at a time.
+To add another certification guide, add another object to the `studyGuides` array.
 
----
+### `Data/Azure study guide 1.0.xlsx`
 
-## Technologies
+The original spreadsheet study guide. The current simple version does not parse it automatically yet.
 
-* Python
-* FastAPI (or Flask)
-* HTML
-* CSS
-* JavaScript
-* Google Sheets API (optional)
-* Excel (.xlsx) support
+### `Agents.md`
 
----
+Project instructions for transforming Microsoft Learn content into structured quiz and study-guide data.
 
-## How to Use
+### `index.html`
 
-1. Place your study guide inside the `data` folder.
-2. Start the application.
-3. Click **Generate Quiz**.
-4. Answer each question.
-5. View your score and explanations.
-6. Review recommended study topics.
+The earlier static prototype. The Next.js app now lives in the `app/`, `components/`, and `data/` folders.
 
----
+## Current Features
 
-## Long-Term Vision
+- Generates a randomized quiz.
+- Shows one question at a time.
+- Supports Previous and Next navigation.
+- Labels answers A-D.
+- Shows final score and percentage.
+- Shows correct answers and explanations.
+- Shows weak-topic recommendations.
+- Supports multiple study guides in the data structure.
 
-Create a reusable learning platform that can generate certification-quality practice exams for multiple Microsoft Azure certifications using only structured study guides as the content source.
+## Next Simple Improvement
+
+The next useful step is to convert the Excel spreadsheet into rows inside `lib/studyGuides.js`, or add a small import tool later.

@@ -1,0 +1,19 @@
+{
+  "name": "azure-ai-quiz-generator",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {},
+  "allowScripts": {
+    "sharp@0.34.5": true
+  }
+}
