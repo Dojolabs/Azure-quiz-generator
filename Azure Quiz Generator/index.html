@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Azure AI Quiz Generator</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f7fb;
+      color: #172033;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    main {
+      width: min(100%, 920px);
+      margin: 0 auto;
+      padding: 40px;
+      border: 1px solid #d8deea;
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 18px 45px rgba(23, 32, 51, 0.08);
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 8vw, 3rem);
+      line-height: 1.05;
+      text-align: center;
+    }
+
+    .intro {
+      margin: 0 0 28px;
+      color: #536176;
+      font-size: 1rem;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: center;
+      align-items: end;
+      margin-bottom: 20px;
+    }
+
+    .guide-control {
+      display: grid;
+      gap: 6px;
+      min-width: min(100%, 320px);
+    }
+
+    .guide-control label {
+      color: #536176;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .guide-control select {
+      min-height: 48px;
+      width: 100%;
+      padding: 0 12px;
+      border: 1px solid #d8deea;
+      border-radius: 6px;
+      background: #ffffff;
+      color: #172033;
+      font: inherit;
+    }
+
+    button {
+      min-height: 48px;
+      padding: 0 24px;
+      border: 0;
+      border-radius: 6px;
+      background: #0078d4;
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #106ebe;
+    }
+
+    button:focus-visible {
+      outline: 3px solid #8cc7ff;
+      outline-offset: 3px;
+    }
+
+    #status {
+      min-height: 24px;
+      margin-top: 20px;
+      color: #1f5f3f;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    #quiz {
+      display: grid;
+      gap: 18px;
+      margin-top: 28px;
+    }
+
+    .question {
+      padding: 20px;
+      border: 1px solid #d8deea;
+      border-radius: 8px;
+      background: #fbfcff;
+    }
+
+    .question h2 {
+      margin: 0 0 14px;
+      font-size: 1.05rem;
+      line-height: 1.5;
+    }
+
+    .choices {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .choices label {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid #d8deea;
+      border-radius: 6px;
+      background: #ffffff;
+      cursor: pointer;
+      line-height: 1.4;
+    }
+
+    .choices input {
+      margin-top: 3px;
+    }
+
+    .quiz-footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .quiz-progress {
+      width: 100%;
+      color: #536176;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .checkpoint {
+      width: 100%;
+      margin-top: 4px;
+      text-align: center;
+    }
+
+    .subtle-button {
+      min-height: auto;
+      padding: 8px 12px;
+      border: 1px solid #d8deea;
+      background: transparent;
+      color: #536176;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .subtle-button:hover {
+      background: #f5f7fb;
+      color: #172033;
+    }
+
+    .secondary {
+      background: #24364f;
+    }
+
+    .secondary:hover {
+      background: #172033;
+    }
+
+    button:disabled {
+      background: #a6b1c2;
+      cursor: not-allowed;
+    }
+
+    .result {
+      width: 100%;
+      min-height: 24px;
+      color: #172033;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .review {
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .metric {
+      padding: 16px;
+      border: 1px solid #d8deea;
+      border-radius: 8px;
+      background: #fbfcff;
+      text-align: center;
+    }
+
+    .metric strong {
+      display: block;
+      margin-bottom: 6px;
+      color: #536176;
+      font-size: 0.85rem;
+    }
+
+    .metric span {
+      color: #172033;
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+
+    .topic-summary {
+      margin-bottom: 20px;
+      padding: 16px;
+      border: 1px solid #d8deea;
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .topic-summary h2 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
+
+    .topic-summary p {
+      margin: 6px 0;
+      line-height: 1.45;
+    }
+
+    .recommendations {
+      display: grid;
+      gap: 10px;
+      margin: 12px 0 0;
+      padding-left: 20px;
+    }
+
+    .recommendations li {
+      line-height: 1.45;
+    }
+
+    .review-item {
+      padding: 16px;
+      border: 1px solid #d8deea;
+      border-radius: 8px;
+      background: #fbfcff;
+    }
+
+    .review-item h2 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      line-height: 1.45;
+    }
+
+    .review-item p {
+      margin: 6px 0;
+      line-height: 1.45;
+    }
+
+    .correct {
+      color: #1f6f43;
+      font-weight: 700;
+    }
+
+    .incorrect {
+      color: #a4262c;
+      font-weight: 700;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 12px;
+      }
+
+      main {
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Azure AI Quiz Generator</h1>
+    <p class="intro">Create a 30-question practice exam from the selected Azure certification study guide.</p>
+    <div class="actions">
+      <div class="guide-control">
+        <label for="studyGuideSelect">Certification study guide</label>
+        <select id="studyGuideSelect"></select>
+      </div>
+      <button id="generateQuizButton" type="button">Generate Quiz</button>
+    </div>
+    <div id="status" aria-live="polite"></div>
+    <section id="quiz" aria-label="Generated quiz"></section>
+  </main>
+
+  <script>
+    const button = document.querySelector("#generateQuizButton");
+    const guideSelect = document.querySelector("#studyGuideSelect");
+    const status = document.querySelector("#status");
+    const quiz = document.querySelector("#quiz");
+
+    const questionBank = [
+      {
+        topic: "Large language models",
+        question: "What is the primary job of a large language model when it responds to a prompt?",
+        choices: [
+          "Predict a meaningful continuation based on learned language patterns",
+          "Search a fixed spreadsheet for the exact matching sentence",
+          "Convert every word directly into a database record",
+          "Run only arithmetic calculations on the input text"
+        ],
+        answer: "Predict a meaningful continuation based on learned language patterns"
+      },
+      {
+        topic: "Small language models",
+        question: "How are small language models related to large language models?",
+        choices: [
+          "They are more compact models that still represent language relationships",
+          "They only process images and never process text",
+          "They are spreadsheets that store manually written answers",
+          "They are models that can only count tokens"
+        ],
+        answer: "They are more compact models that still represent language relationships"
+      },
+      {
+        topic: "Prompts",
+        question: "In generative AI, what does a prompt usually provide?",
+        choices: [
+          "The starting input the model uses to generate a completion",
+          "The final answer that the model must copy exactly",
+          "The private training dataset for the model",
+          "The hardware address of the model server"
+        ],
+        answer: "The starting input the model uses to generate a completion"
+      },
+      {
+        topic: "Tokenization",
+        question: "Why does an LLM tokenize text before processing it?",
+        choices: [
+          "To break text into manageable units that can be represented numerically",
+          "To delete punctuation from all training examples",
+          "To translate every sentence into one fixed language",
+          "To prevent the model from learning word relationships"
+        ],
+        answer: "To break text into manageable units that can be represented numerically"
+      },
+      {
+        topic: "Tokens",
+        question: "Which item is the best example of something that can be a token?",
+        choices: [
+          "A word, subword, punctuation mark, or common character sequence",
+          "Only a complete paragraph",
+          "Only a full spreadsheet row",
+          "Only a model's final answer"
+        ],
+        answer: "A word, subword, punctuation mark, or common character sequence"
+      },
+      {
+        topic: "Token IDs",
+        question: "What is the purpose of assigning each token a unique identifier?",
+        choices: [
+          "It lets the model handle text units as numeric data",
+          "It guarantees every generated answer is factually correct",
+          "It removes the need for training data",
+          "It forces all tokens to have the same meaning"
+        ],
+        answer: "It lets the model handle text units as numeric data"
+      },
+      {
+        topic: "Token vectors",
+        question: "What does a token vector represent in model training?",
+        choices: [
+          "A numeric representation of a token that can be transformed by the model",
+          "A chart showing the user's quiz score",
+          "A password used to access Azure services",
+          "A static paragraph copied from the source material"
+        ],
+        answer: "A numeric representation of a token that can be transformed by the model"
+      },
+      {
+        topic: "Embeddings",
+        question: "What makes embeddings useful in language models?",
+        choices: [
+          "They encode contextual and semantic information in numeric vectors",
+          "They store only the alphabetical order of words",
+          "They remove the need for a decoder",
+          "They are always three numbers long in production systems"
+        ],
+        answer: "They encode contextual and semantic information in numeric vectors"
+      },
+      {
+        topic: "Transformer models",
+        question: "What role does a transformer model play in the spreadsheet content?",
+        choices: [
+          "It transforms initial token vectors into context-aware representations",
+          "It converts Excel files into web pages",
+          "It stores answer choices for a quiz application",
+          "It replaces tokenization with manual tagging"
+        ],
+        answer: "It transforms initial token vectors into context-aware representations"
+      },
+      {
+        topic: "Encoder blocks",
+        question: "What is the encoder block responsible for in a transformer?",
+        choices: [
+          "Creating embeddings by evaluating token context",
+          "Showing the final quiz score",
+          "Choosing the color theme for a web page",
+          "Ignoring relationships between nearby tokens"
+        ],
+        answer: "Creating embeddings by evaluating token context"
+      },
+      {
+        topic: "Decoder blocks",
+        question: "What does the decoder block use embeddings to do?",
+        choices: [
+          "Predict the next likely token in a sequence",
+          "Assign file permissions to a spreadsheet",
+          "Remove all semantic information from a vector",
+          "Prevent the model from generating completions"
+        ],
+        answer: "Predict the next likely token in a sequence"
+      },
+      {
+        topic: "Attention",
+        question: "What is the purpose of attention in a transformer?",
+        choices: [
+          "To weigh how strongly surrounding tokens influence the current token",
+          "To sort all tokens by length only",
+          "To choose random words without using context",
+          "To erase positional information"
+        ],
+        answer: "To weigh how strongly surrounding tokens influence the current token"
+      },
+      {
+        topic: "Multi-head attention",
+        question: "Why is multi-head attention useful?",
+        choices: [
+          "It evaluates multiple aspects of token relationships in parallel",
+          "It makes every token share the same vector",
+          "It limits the model to one word at a time with no context",
+          "It stores questions in four answer choices"
+        ],
+        answer: "It evaluates multiple aspects of token relationships in parallel"
+      },
+      {
+        topic: "Positional encoding",
+        question: "Why does a transformer need positional encoding?",
+        choices: [
+          "Token order affects meaning, so the model needs sequence position information",
+          "Tokens are always processed alphabetically",
+          "Position data replaces the need for embeddings",
+          "It prevents the model from reading the prompt"
+        ],
+        answer: "Token order affects meaning, so the model needs sequence position information"
+      },
+      {
+        topic: "Semantic similarity",
+        question: "What does it suggest when two token embeddings point in similar directions?",
+        choices: [
+          "The tokens are often used in similar contexts or have related meanings",
+          "The tokens must be spelled exactly the same",
+          "The tokens cannot appear in the same sentence",
+          "The model has not learned anything about them"
+        ],
+        answer: "The tokens are often used in similar contexts or have related meanings"
+      },
+      {
+        topic: "Cosine similarity",
+        question: "What is cosine similarity used for in the study material?",
+        choices: [
+          "Measuring how close embeddings are in semantic direction",
+          "Counting the total number of quiz questions",
+          "Encrypting the training data",
+          "Choosing a random spreadsheet file"
+        ],
+        answer: "Measuring how close embeddings are in semantic direction"
+      },
+      {
+        topic: "Masked attention",
+        question: "Why is masked attention used during decoder training?",
+        choices: [
+          "To prevent later tokens from being used when predicting the next token",
+          "To hide all previous tokens from the model",
+          "To make training ignore the correct answer",
+          "To remove all weights from the attention layer"
+        ],
+        answer: "To prevent later tokens from being used when predicting the next token"
+      },
+      {
+        topic: "Training",
+        question: "How does training help the model improve next-token predictions?",
+        choices: [
+          "The model compares predictions with known next tokens and adjusts its weights",
+          "The model memorizes only one example sentence",
+          "The model stops using embeddings after the first prompt",
+          "The model asks the user to label every token manually"
+        ],
+        answer: "The model compares predictions with known next tokens and adjusts its weights"
+      },
+      {
+        topic: "Completion generation",
+        question: "How does a model usually generate a longer completion?",
+        choices: [
+          "It predicts a token, adds it to the sequence, and repeats the process",
+          "It creates every answer choice before reading the prompt",
+          "It outputs only the first token ID from the vocabulary",
+          "It copies the entire training dataset into the response"
+        ],
+        answer: "It predicts a token, adds it to the sequence, and repeats the process"
+      },
+      {
+        topic: "Context",
+        question: "Why would words like 'heard' and 'dog' help predict a word such as 'bark'?",
+        choices: [
+          "They provide contextual clues that commonly relate to a likely sound or action",
+          "They force the model to ignore nearby words",
+          "They are punctuation tokens",
+          "They are always assigned the same token ID"
+        ],
+        answer: "They provide contextual clues that commonly relate to a likely sound or action"
+      },
+      {
+        topic: "Vocabulary",
+        question: "Why do modern language models use very large vocabularies?",
+        choices: [
+          "They need many tokens to represent common language patterns from large training sources",
+          "They can only answer questions when every word has the same token ID",
+          "They avoid learning from text by using only random numbers",
+          "They require one token for each quiz question"
+        ],
+        answer: "They need many tokens to represent common language patterns from large training sources"
+      },
+      {
+        topic: "Subword tokens",
+        question: "Why might a model represent part of a word, such as a prefix, as a token?",
+        choices: [
+          "Subword tokens help represent words and word parts that appear across many examples",
+          "Subword tokens prevent the model from processing full words",
+          "Subword tokens are used only for punctuation marks",
+          "Subword tokens always have no meaning"
+        ],
+        answer: "Subword tokens help represent words and word parts that appear across many examples"
+      },
+      {
+        topic: "Training data",
+        question: "What does exposure to large volumes of text help a language model learn?",
+        choices: [
+          "Patterns in how tokens appear together and influence one another",
+          "A single fixed response for every possible prompt",
+          "Only the number of rows in a spreadsheet",
+          "How to ignore semantic relationships"
+        ],
+        answer: "Patterns in how tokens appear together and influence one another"
+      },
+      {
+        topic: "Attention weights",
+        question: "In an attention layer, what do higher weights usually indicate?",
+        choices: [
+          "A token has stronger influence on the token currently being represented",
+          "A token should be deleted from the vocabulary",
+          "A token is always the correct answer in a quiz",
+          "A token cannot be part of an embedding"
+        ],
+        answer: "A token has stronger influence on the token currently being represented"
+      },
+      {
+        topic: "Feed-forward networks",
+        question: "After attention identifies contextual influence, what does the feed-forward network help do?",
+        choices: [
+          "Refine the vector representation or prediction using learned patterns",
+          "Open the source spreadsheet in Excel",
+          "Replace all answer choices with random words",
+          "Remove the prompt from the model input"
+        ],
+        answer: "Refine the vector representation or prediction using learned patterns"
+      },
+      {
+        topic: "Initial vectors",
+        question: "How do token vector values typically start before transformer training refines them?",
+        choices: [
+          "They start as random values that are adjusted through training",
+          "They start as final perfect meanings typed by a user",
+          "They start as web page colors",
+          "They start as fixed quiz scores"
+        ],
+        answer: "They start as random values that are adjusted through training"
+      },
+      {
+        topic: "Prompt completion",
+        question: "Why does a model evaluate the sequence generated so far before choosing another token?",
+        choices: [
+          "Each new token changes the context for predicting the next one",
+          "The model must erase all previous tokens after every prediction",
+          "The model can only answer with one token total",
+          "The prompt is unrelated to completion generation"
+        ],
+        answer: "Each new token changes the context for predicting the next one"
+      },
+      {
+        topic: "Semantic direction",
+        question: "What does the direction of an embedding vector help communicate?",
+        choices: [
+          "Semantic relationships between tokens based on learned context",
+          "The exact file path of the training spreadsheet",
+          "The number of answer choices in a quiz",
+          "Whether a token is typed in uppercase"
+        ],
+        answer: "Semantic relationships between tokens based on learned context"
+      },
+      {
+        topic: "Decoder context",
+        question: "When predicting the next token, which context should the decoder use?",
+        choices: [
+          "The tokens that come before the token being predicted",
+          "Only tokens that appear after the answer",
+          "No prompt tokens at all",
+          "Only spreadsheet column names"
+        ],
+        answer: "The tokens that come before the token being predicted"
+      },
+      {
+        topic: "Model error reduction",
+        question: "Why does the model compare predicted tokens with known tokens during training?",
+        choices: [
+          "To reduce prediction error by adjusting learned weights over time",
+          "To prevent any future changes to the model",
+          "To make all embeddings identical",
+          "To skip the attention mechanism"
+        ],
+        answer: "To reduce prediction error by adjusting learned weights over time"
+      }
+    ];
+
+    const explanationsByTopic = {
+      "Large language models": "Large language models generate responses by using learned language and semantic patterns to predict likely continuations from a prompt.",
+      "Small language models": "Small language models are more compact than LLMs, but they still represent relationships between language units and can support natural language tasks.",
+      "Prompts": "A prompt is the input that starts the model's completion process. The model uses it as context for predicting what should come next.",
+      "Tokenization": "Tokenization converts text into smaller units that a model can represent with numbers and process efficiently.",
+      "Tokens": "Tokens can be full words, parts of words, punctuation, or common character sequences, depending on how the model vocabulary is built.",
+      "Token IDs": "A unique token ID lets the model process text as numeric input instead of raw characters.",
+      "Token vectors": "Token vectors are numeric representations that can be adjusted and transformed during model training.",
+      "Embeddings": "Embeddings capture useful linguistic and semantic information in vector form, making relationships between tokens easier for the model to use.",
+      "Transformer models": "Transformers use attention-based processing to turn basic token vectors into context-aware representations.",
+      "Encoder blocks": "Encoder blocks create contextual embeddings by evaluating how tokens relate to nearby tokens in a sequence.",
+      "Decoder blocks": "Decoder blocks use learned embeddings and prior context to predict the next likely token.",
+      "Attention": "Attention assigns influence to surrounding tokens so the model can focus on the words that matter most for the current prediction.",
+      "Multi-head attention": "Multi-head attention evaluates several relationship patterns at the same time, making the model's context analysis richer.",
+      "Positional encoding": "Because token order affects meaning, positional encoding gives the transformer information about where each token appears in the sequence.",
+      "Semantic similarity": "Similar embedding directions suggest that tokens are used in related contexts or have related meanings.",
+      "Cosine similarity": "Cosine similarity compares vector direction, which helps estimate how semantically close two embeddings are.",
+      "Masked attention": "Masked attention prevents the decoder from looking ahead at future tokens during training, making next-token prediction realistic.",
+      "Training": "During training, the model compares predictions with known next tokens and adjusts weights to reduce future prediction errors.",
+      "Completion generation": "Long completions are produced iteratively: the model predicts one token, adds it to the context, and predicts again.",
+      "Context": "Nearby words can strongly influence the next likely token because they provide semantic clues about what should follow.",
+      "Vocabulary": "A large vocabulary helps the model represent many words, word parts, symbols, and recurring text patterns from training data.",
+      "Subword tokens": "Subword tokens help models handle unfamiliar or complex words by representing reusable pieces of language.",
+      "Training data": "Large text datasets expose the model to repeated token patterns, helping it learn which words and concepts commonly appear together.",
+      "Attention weights": "Higher attention weights mean a token is more influential for the representation or prediction currently being calculated.",
+      "Feed-forward networks": "Feed-forward networks refine the output of attention layers into stronger representations or predictions.",
+      "Initial vectors": "Token vectors often begin as random numeric values, then training gradually adjusts them into more meaningful representations.",
+      "Prompt completion": "Every generated token changes the context, so the model reevaluates the sequence before predicting the next token.",
+      "Semantic direction": "Embedding direction reflects learned relationships, so related concepts tend to have vectors pointing in similar directions.",
+      "Decoder context": "For next-token prediction, the decoder should rely on the tokens already seen rather than future tokens.",
+      "Model error reduction": "Comparing predictions with known answers lets training update model weights and reduce prediction error over time."
+    };
+
+    const recommendationsByTopic = {
+      "Large language models": "Review how LLMs use learned language patterns to predict completions from prompts.",
+      "Small language models": "Compare LLMs and SLMs, focusing on size, capability, and when a compact model may be useful.",
+      "Prompts": "Practice identifying the prompt, context, and expected completion in short generative AI scenarios.",
+      "Tokenization": "Revisit how raw text is split into processable units before a model can reason over it.",
+      "Tokens": "Study examples of words, subwords, punctuation, and character sequences as model tokens.",
+      "Token IDs": "Review why assigning numeric IDs allows language text to become model-ready input.",
+      "Token vectors": "Practice explaining how numeric vectors represent tokens before they become richer embeddings.",
+      "Embeddings": "Focus on how embeddings store semantic and contextual meaning in vector form.",
+      "Transformer models": "Review the transformer flow from token vectors to context-aware representations.",
+      "Encoder blocks": "Study how encoder blocks use attention to build embeddings from token context.",
+      "Decoder blocks": "Practice tracing how a decoder uses prior tokens and embeddings to predict the next token.",
+      "Attention": "Review examples where one word strongly influences another, such as nouns and related actions.",
+      "Multi-head attention": "Focus on why evaluating multiple token relationships in parallel improves context understanding.",
+      "Positional encoding": "Review examples where word order changes meaning and why transformers need position data.",
+      "Semantic similarity": "Practice comparing related and unrelated terms based on how they appear in similar contexts.",
+      "Cosine similarity": "Review cosine similarity as a way to compare embedding direction rather than exact values.",
+      "Masked attention": "Study why training should prevent the decoder from seeing future tokens.",
+      "Training": "Review the training loop: predict, compare with the known next token, and adjust weights.",
+      "Completion generation": "Practice describing iterative token generation one step at a time.",
+      "Context": "Review how surrounding words narrow down the most likely next token.",
+      "Vocabulary": "Study why broad token vocabularies help represent many words, symbols, and word parts.",
+      "Subword tokens": "Review how subword tokens help with prefixes, suffixes, rare words, and reusable word parts.",
+      "Training data": "Focus on how repeated patterns in large text collections shape model behavior.",
+      "Attention weights": "Practice identifying which tokens should receive higher influence in a short sentence.",
+      "Feed-forward networks": "Review the role of feed-forward layers after attention has captured token relationships.",
+      "Initial vectors": "Study how random initial vectors become meaningful through repeated training adjustments.",
+      "Prompt completion": "Review how each generated token changes the next prediction's context.",
+      "Semantic direction": "Practice explaining why related embeddings tend to point in similar directions.",
+      "Decoder context": "Review the difference between prior context and future tokens during prediction.",
+      "Model error reduction": "Focus on how comparing predictions to known targets helps reduce future model errors."
+    };
+
+    // Add each parsed spreadsheet question bank here as another certification guide.
+    const studyGuides = [
+      {
+        id: "ai-900-generative-ai",
+        name: "AI-900: Azure AI Fundamentals - Generative AI",
+        examSize: 30,
+        questions: questionBank
+      }
+    ];
+
+    let currentQuiz = [];
+    let currentQuestionIndex = 0;
+
+    function loadStudyGuideOptions() {
+      guideSelect.innerHTML = studyGuides.map((guide) => `
+        <option value="${guide.id}">${guide.name}</option>
+      `).join("");
+    }
+
+    function getSelectedStudyGuide() {
+      return studyGuides.find((guide) => guide.id === guideSelect.value) || studyGuides[0];
+    }
+
+    function getChoiceLetter(index) {
+      return String.fromCharCode(65 + index);
+    }
+
+    function getAnswerReference(question, answer) {
+      const answerIndex = question.choices.findIndex((choice) => choice === answer);
+
+      if (answerIndex === -1) {
+        return {
+          letter: "-",
+          text: answer || "No answer selected"
+        };
+      }
+
+      return {
+        letter: getChoiceLetter(answerIndex),
+        text: answer
+      };
+    }
+
+    function shuffle(items) {
+      const shuffled = [...items];
+
+      for (let index = shuffled.length - 1; index > 0; index -= 1) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+        [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+      }
+
+      return shuffled;
+    }
+
+    function getRandomQuestions(guide) {
+      const questionCount = Math.min(guide.examSize, guide.questions.length);
+
+      return shuffle(guide.questions).slice(0, questionCount).map((question) => ({
+        ...question,
+        choices: shuffle(question.choices)
+      }));
+    }
+
+    function renderQuiz() {
+      const selectedGuide = getSelectedStudyGuide();
+      currentQuiz = getRandomQuestions(selectedGuide);
+      currentQuestionIndex = 0;
+      status.textContent = `Generated a ${currentQuiz.length}-question exam from ${selectedGuide.name}.`;
+      renderCurrentQuestion();
+    }
+
+    function renderCurrentQuestion() {
+      const item = currentQuiz[currentQuestionIndex];
+      const choicesHtml = item.choices.map((choice, choiceIndex) => {
+        const isChecked = item.selectedAnswer === choice ? "checked" : "";
+        const choiceLetter = getChoiceLetter(choiceIndex);
+
+        return `
+          <li>
+            <label>
+              <input type="radio" name="question-${currentQuestionIndex}" value="${choice}" ${isChecked}>
+              <span><strong>${choiceLetter}.</strong> ${choice}</span>
+            </label>
+          </li>
+        `;
+      }).join("");
+
+      const isFirstQuestion = currentQuestionIndex === 0;
+      const isLastQuestion = currentQuestionIndex === currentQuiz.length - 1;
+      const nextButtonText = isLastQuestion ? "Finish Quiz" : "Next";
+      const isCheckpoint = (currentQuestionIndex + 1) % 10 === 0 && !isLastQuestion;
+      const checkpointHtml = isCheckpoint
+        ? `
+          <div class="checkpoint">
+            <button class="subtle-button" id="endCheckpointButton" type="button">
+              End quiz at ${currentQuestionIndex + 1} questions
+            </button>
+          </div>
+        `
+        : "";
+
+      quiz.innerHTML = `
+        <article class="question">
+          <h2>${currentQuestionIndex + 1}. ${item.question}</h2>
+          <ul class="choices">${choicesHtml}</ul>
+        </article>
+        <div class="quiz-footer">
+          <div class="quiz-progress">Question ${currentQuestionIndex + 1} of ${currentQuiz.length}</div>
+          <button class="secondary" id="previousButton" type="button" ${isFirstQuestion ? "disabled" : ""}>Previous</button>
+          <button class="secondary" id="nextButton" type="button">${nextButtonText}</button>
+          <div class="result" id="result" aria-live="polite"></div>
+          ${checkpointHtml}
+        </div>
+      `;
+
+      document.querySelectorAll(`input[name="question-${currentQuestionIndex}"]`).forEach((choice) => {
+        choice.addEventListener("change", (event) => {
+          currentQuiz[currentQuestionIndex].selectedAnswer = event.target.value;
+        });
+      });
+
+      document.querySelector("#previousButton").addEventListener("click", showPreviousQuestion);
+      document.querySelector("#nextButton").addEventListener("click", showNextQuestion);
+
+      if (isCheckpoint) {
+        document.querySelector("#endCheckpointButton").addEventListener("click", showCheckpointScore);
+      }
+    }
+
+    function showPreviousQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex -= 1;
+        renderCurrentQuestion();
+      }
+    }
+
+    function showNextQuestion() {
+      if (currentQuestionIndex < currentQuiz.length - 1) {
+        currentQuestionIndex += 1;
+        renderCurrentQuestion();
+      } else {
+        showScore(currentQuiz);
+      }
+    }
+
+    function showCheckpointScore() {
+      const completedQuestions = currentQuiz.slice(0, currentQuestionIndex + 1);
+      showScore(completedQuestions);
+    }
+
+    function showScore(completedQuestions) {
+      let score = 0;
+      let attempted = 0;
+      const topicStats = {};
+
+      completedQuestions.forEach((item) => {
+        if (!topicStats[item.topic]) {
+          topicStats[item.topic] = { correct: 0, total: 0 };
+        }
+
+        topicStats[item.topic].total += 1;
+
+        if (item.selectedAnswer) {
+          attempted += 1;
+        }
+
+        if (item.selectedAnswer === item.answer) {
+          score += 1;
+          topicStats[item.topic].correct += 1;
+        }
+      });
+
+      const percentage = Math.round((score / completedQuestions.length) * 100);
+      const skipped = completedQuestions.length - attempted;
+      const passStatus = percentage >= 70 ? "Passed" : "Needs review";
+      const topicResults = Object.entries(topicStats).map(([topic, stats]) => ({
+        topic,
+        score: stats.correct,
+        total: stats.total,
+        percentage: Math.round((stats.correct / stats.total) * 100)
+      }));
+      const strongTopics = topicResults
+        .filter((item) => item.percentage === 100)
+        .map((item) => item.topic);
+      const weakTopics = topicResults
+        .filter((item) => item.percentage < 100)
+        .sort((a, b) => a.percentage - b.percentage)
+        .slice(0, 5);
+      const strongestText = strongTopics.length > 0 ? strongTopics.join(", ") : "None yet";
+      const reviewText = weakTopics.length > 0
+        ? weakTopics.map((item) => `${item.topic} (${item.score}/${item.total})`).join(", ")
+        : "No weak topics found";
+      const recommendationHtml = weakTopics.length > 0
+        ? weakTopics.map((item) => {
+          const recommendation = recommendationsByTopic[item.topic] || "Review the related study-guide section and retry similar questions.";
+
+          return `
+            <li>
+              <strong>${item.topic} (${item.score}/${item.total}):</strong> ${recommendation}
+            </li>
+          `;
+        }).join("")
+        : "<li>No weak topics found. Generate another exam to keep practicing across the full study guide.</li>";
+
+      const reviewHtml = completedQuestions.map((item, index) => {
+        const isCorrect = item.selectedAnswer === item.answer;
+        const selectedAnswer = getAnswerReference(item, item.selectedAnswer);
+        const correctAnswer = getAnswerReference(item, item.answer);
+        const explanation = explanationsByTopic[item.topic] || "Review this topic in the study guide to reinforce the concept.";
+        const resultClass = isCorrect ? "correct" : "incorrect";
+        const resultText = isCorrect ? "Correct" : "Incorrect";
+
+        return `
+          <li class="review-item">
+            <h2>${index + 1}. ${item.question}</h2>
+            <p class="${resultClass}">${resultText}</p>
+            <p><strong>Your answer:</strong> ${selectedAnswer.letter}. ${selectedAnswer.text}</p>
+            <p><strong>Correct answer:</strong> ${correctAnswer.letter}. ${correctAnswer.text}</p>
+            <p><strong>Explanation:</strong> ${explanation}</p>
+          </li>
+        `;
+      }).join("");
+
+      status.textContent = `Quiz finished. Score: ${score} out of ${completedQuestions.length}`;
+      quiz.innerHTML = `
+        <section class="metrics" aria-label="Performance metrics">
+          <div class="metric">
+            <strong>Score</strong>
+            <span>${score}/${completedQuestions.length}</span>
+          </div>
+          <div class="metric">
+            <strong>Percentage</strong>
+            <span>${percentage}%</span>
+          </div>
+          <div class="metric">
+            <strong>Status</strong>
+            <span>${passStatus}</span>
+          </div>
+          <div class="metric">
+            <strong>Attempted</strong>
+            <span>${attempted}/${completedQuestions.length}</span>
+          </div>
+          <div class="metric">
+            <strong>Skipped</strong>
+            <span>${skipped}</span>
+          </div>
+        </section>
+        <section class="topic-summary" aria-label="Topic performance">
+          <h2>Topic Performance</h2>
+          <p><strong>Strong topics:</strong> ${strongestText}</p>
+          <p><strong>Review next:</strong> ${reviewText}</p>
+          <ol class="recommendations">
+            ${recommendationHtml}
+          </ol>
+        </section>
+        <ol class="review">${reviewHtml}</ol>
+      `;
+    }
+
+    loadStudyGuideOptions();
+    button.addEventListener("click", renderQuiz);
+  </script>
+</body>
+</html>
